@@ -83,7 +83,8 @@ export class HeroService {
       };
     }
 
-    public deleteHero(hero : Hero) : Observable<Hero>{
+    /** DELETE: delete the hero from the server */
+    public deleteHero(hero : Hero | number) : Observable<Hero>{
       console.log("Type of Hero : ");
       console.log(typeof hero === 'number');
 
@@ -94,5 +95,18 @@ export class HeroService {
         tap( _ => this.log(`deleted hero id=${id}`)),
         catchError(this.handleError<Hero>("deleteHero"))
       )
+    }
+
+    /* GET heroes whose name contains search term */
+    searchHeroes(term: string): Observable<Hero[]> {
+      if (!term.trim()) {
+        // if not search term, return empty hero array.
+        return of([]);
+      }
+
+      return this.httpClient.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
+        tap(_ => this.log(`found heroes matching "${term}"`)),
+        catchError(this.handleError<Hero[]>('searchHeroes', []))
+      );
     }
 }
